@@ -1,0 +1,11 @@
+
+.card-custom {
+    background-color: rgba(0, 0, 0, 0.4); /* Imposta il colore di sfondo nero con opacità */
+    color: #fff; /* Imposta il colore del testo su bianco */
+    border: 1px solid #333; /* Imposta un sottile bordo nero */
+    padding: 10px;
+}
+
+.card-custom:hover {
+    background-color: rgba(0, 0, 0, 0.9); /* Cambia l'opacità al passaggio del mouse */
+}
