@@ -9,18 +9,22 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    
     <link rel="stylesheet" href="{% static '/css/style.css' %}"> 
     <style>
         body {
             background-image: url('{{ background_src }}');
             background-size: cover; /* Per adattare l'immagine allo schermo */
-        }
+}
     </style>
-    <title>Hello, world!</title>
+    <title>Mars Rovers Images</title>
   </head>
   <body>
     <div class="container">
-        <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div id="carouselExampleFade" class="carousel slide carousel-fade mt-4" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
             <iframe src='https://mars.nasa.gov/embed/25382/' width='100%' max-height='100'  scrolling='no' frameborder='0'></iframe>
@@ -87,29 +91,65 @@
             </div>
         </div>
     </div>
-    <br>
+    
     <hr>
-    <br>
+    
     <div class="container">
-    <h3 class="text-center text-light">My Last 6 Days on Mars</h3>
+    <h3 class="text-center text-light">Mars Rovers Images</h3>
     <div class="row text-center">
-        {% for image in images_list %}
-        {% if forloop.counter0|divisibleby:3 %}
-            </div><br><hr><br><div class="row text-center">
-        {% endif %}
-        <div class="col-4 text-center">
-            <div class="card card-custom mx-auto" style="max-width:60%">
-                <img src="{{ image.img_src }}" class="card-img-top mx-auto" style="max-width: 200px; max-height: 200px;">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Sol {{ image.sol }}</h5>
-                    <h5 class="card-title">Earth Date: {{ image.earth_date }}</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="{{ image.img_src }}" class="btn btn-primary" target="_blank">View Image</a>
-                </div>
+        <div class="col-12 text-center">
+            <button id="loadMoreButton" class="btn btn-primary" data-rover_name='{{ rover_name }}' data-max_sol="{{ max_sol }}">Carica altre immagini</button>           
+            
+        </div>
+    </div>
+    <br>
+
+    <div class="row text-center">
+        <div id="imageContainer"></div>
+    </div>
+
+    
+    </div>
+    
+    <div class="footer mt-4">
+        <div class="row">
+            <div class="col-3">
+            <ul>
+                <li>
+                <a href="https://www.linkedin.com/in/stefano-ferrari-5a79b0292/" style="text-decoration: none;">
+                    <i class="bi bi-linkedin"></i> LinkedIn
+                </a>
+
+                </li>
+                <li>
+                
+                
+                <a href="https://twitter.com/rquattrogtl" style="text-decoration: none;">
+                    <i class="bi bi-twitter-x"></i> twitter
+                </a>
+
+                
+                </li>
+                <li>
+                
+                
+                <a href="https://github.com/r4gtl" style="text-decoration: none;">
+                    <i class="bi bi-github"></i> github
+                </a>
+                
+                </li>
+            </ul>
+                
+                
+                
+            </div>
+            <div class="col-3">
+                
+            </div>
+            <div class="col-3">
+                
             </div>
         </div>
-    {% endfor %}
-    </div>
     </div>
     </div>
     <!-- Optional JavaScript; choose one of the two! -->
@@ -122,5 +162,117 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
     -->
+
+    
   </body>
+
+  <script>
+    // document.getElementById('loadMoreButton').addEventListener('click', function () {
+    //var roverName = this.getAttribute('data-rover_name');
+    // var maxSol = this.getAttribute('data-max_sol');
+
+    //loadImages(roverName, maxSol);
+//});
+    document.addEventListener("DOMContentLoaded", function() {
+    // Tutto il tuo codice JavaScript va qui
+    var loadMoreButton = document.getElementById('loadMoreButton');
+    var roverName = loadMoreButton.getAttribute('data-rover_name');
+    var maxSol = loadMoreButton.getAttribute('data-max_sol');
+
+    loadImages(roverName, maxSol);
+
+    loadMoreButton.addEventListener('click', function () {
+        var maxSol = 100;
+        loadImages(roverName, maxSol);
+    });
+});
+
+
+function loadImages() {
+    // Recupera i dati dalla finestra di dialogo
+    var roverName = $('#loadMoreButton').data('rover_name');
+    var maxSol = $('#loadMoreButton').data('max_sol');
+    console.log("roverName: " + roverName);
+    console.log("maxSol: " + maxSol);
+
+    // Costruisci l'URL con i parametri roverName e maxSol
+    var url = '/get_images/' + roverName + '/' + maxSol + '/';
+
+    $.get(url, function (data) {
+        console.log("roverName: " + roverName);
+        console.log("maxSol: " + maxSol);
+        console.log("data_images: " + data.images_list);
+        if (data && data.images_list && data.images_list.length > 0) {
+            images = data.images_list;
+            showImages(roverName);
+        } else {
+            console.error('Dati non validi restituiti dal server.');
+        }
+    });
+}
+function showImages(roverName) {
+    var imageContainer = document.getElementById('imageContainer');
+    var newImagesHTML = '<div class="row">';  // Apri una nuova riga
+
+    for (var i = 0; i < 3; i++) {
+        if (images.length > 0) {
+            var image = images.pop();
+            newImagesHTML += `
+                <div class="col-4 text-center">
+                    <div class="card card-custom mx-auto" style="max-width:60%">
+                        <img src="${image.img_src}" class="card-img-top mx-auto" style="max-width: 200px; max-height: 200px;">
+                        <div class="card-body text-start">
+                            <p class="card-title">Sol: ${image.sol}</p>
+                            <p class="card-title">Earth Date: ${image.earth_date}</p>
+                            <p class="card-title">Rover ${roverName}</p>
+                            <p class="card-title">Photo #${image.photo_id}</p>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a href="${image.img_src}" class="btn btn-primary text-center" target="_blank">View Image</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    newImagesHTML += '</div>';  // Chiudi la riga
+
+    // Sostituisci il contenuto di imageContainer con il nuovo HTML
+    imageContainer.innerHTML = newImagesHTML;
+}
+
+
+function showImages_old() {
+    var imageContainer = document.getElementById('imageContainer');
+    for (var i = 0; i < 3; i++) {
+        if (images.length > 0) {
+            var image = images.pop();
+            var cardDiv = document.createElement('div');
+            cardDiv.className = 'col-4 text-center';
+            cardDiv.innerHTML = `
+                <div class="col-4 text-center">
+                    <div class="card card-custom mx-auto" style="max-width:60%">
+                        <img src="${ image.img_src }" class="card-img-top mx-auto" style="max-width: 200px; max-height: 200px;">
+                        <div class="card-body text-start">
+                            <h5 class="card-title">Sol: ${ image.sol }</h5>
+                            <h5 class="card-title">Earth Date: {{ image.earth_date }}</h5>
+                            <p class="card-title">Photo #${ image.photo_id }</p>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a href="${ image.img_src }$" class="btn btn-primary text-center" target="_blank">View Image</a>
+                        </div>
+                    </div>
+                </div>
+                
+            `;
+            imageContainer.appendChild(cardDiv);
+        }
+    }
+}
+
+
+</script>
+
+
 </html>
